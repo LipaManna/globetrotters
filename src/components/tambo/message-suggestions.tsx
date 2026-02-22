@@ -3,9 +3,8 @@
 import { MessageGenerationStage } from "./message-generation-stage";
 import { Tooltip, TooltipProvider } from "./suggestions-tooltip";
 import { cn } from "@/lib/utils";
-import type { Suggestion, TamboThread } from "@tambo-ai/react";
+import type { Suggestion } from "@tambo-ai/react";
 import {
-  GenerationStage,
   useTambo,
   useTamboSuggestions,
 } from "@tambo-ai/react";
@@ -28,7 +27,8 @@ interface MessageSuggestionsContextValue {
   accept: (options: { suggestion: Suggestion }) => Promise<void>;
   isGenerating: boolean;
   error: Error | null;
-  thread: TamboThread;
+  messages: ReturnType<typeof useTambo>["messages"];
+  isIdle: boolean;
   isMac: boolean;
 }
 
@@ -94,24 +94,25 @@ const MessageSuggestions = React.forwardRef<
     },
     ref,
   ) => {
-    const { thread } = useTambo();
+    const { messages, isIdle } = useTambo();
     const {
       suggestions: generatedSuggestions,
       selectedSuggestionId,
       accept,
-      generateResult: { isPending: isGenerating, error },
+      isGenerating,
+      error,
     } = useTamboSuggestions({ maxSuggestions });
 
     // Combine initial and generated suggestions, but only use initial ones when thread is empty
     const suggestions = React.useMemo(() => {
       // Only use pre-seeded suggestions if thread is empty
-      if (!thread?.messages?.length && initialSuggestions.length > 0) {
+      if (!messages.length && initialSuggestions.length > 0) {
         return initialSuggestions.slice(0, maxSuggestions);
       }
       // Otherwise use generated suggestions
       return generatedSuggestions;
     }, [
-      thread?.messages?.length,
+      messages.length,
       generatedSuggestions,
       initialSuggestions,
       maxSuggestions,
@@ -131,7 +132,8 @@ const MessageSuggestions = React.forwardRef<
         accept,
         isGenerating,
         error,
-        thread,
+        messages,
+        isIdle,
         isMac,
       }),
       [
@@ -140,14 +142,15 @@ const MessageSuggestions = React.forwardRef<
         accept,
         isGenerating,
         error,
-        thread,
+        messages,
+        isIdle,
         isMac,
       ],
     );
 
     // Find the last AI message
-    const lastAiMessage = thread?.messages
-      ? [...thread.messages].reverse().find((msg) => msg.role === "assistant")
+    const lastAiMessage = messages.length
+      ? [...messages].reverse().find((msg) => msg.role === "assistant")
       : null;
 
     // When a new AI message appears, update the reference
@@ -196,7 +199,7 @@ const MessageSuggestions = React.forwardRef<
     }, [suggestions, accept, isMac]);
 
     // If we have no messages yet and no initial suggestions, render nothing
-    if (!thread?.messages?.length && initialSuggestions.length === 0) {
+    if (!messages.length && initialSuggestions.length === 0) {
       return null;
     }
 
@@ -241,17 +244,14 @@ const MessageSuggestionsStatus = React.forwardRef<
   HTMLDivElement,
   MessageSuggestionsStatusProps
 >(({ className, ...props }, ref) => {
-  const { error, isGenerating, thread } = useMessageSuggestionsContext();
+  const { error, isGenerating, isIdle } = useMessageSuggestionsContext();
 
   return (
     <div
       ref={ref}
       className={cn(
         "p-2 rounded-md text-sm bg-transparent",
-        !error &&
-          !isGenerating &&
-          (!thread?.generationStage ||
-            thread.generationStage === GenerationStage.COMPLETE)
+        !error && !isGenerating && isIdle
           ? "p-0 min-h-0 mb-0"
           : "",
         className,
@@ -269,7 +269,7 @@ const MessageSuggestionsStatus = React.forwardRef<
       {/* Always render a container for generation stage to prevent layout shifts */}
       <div className="generation-stage-container">
         <GenerationStageContent
-          generationStage={thread?.generationStage}
+          isIdle={isIdle}
           isGenerating={isGenerating}
         />
       </div>
@@ -282,13 +282,13 @@ MessageSuggestionsStatus.displayName = "MessageSuggestions.Status";
  * Internal component to render generation stage content
  */
 function GenerationStageContent({
-  generationStage,
+  isIdle,
   isGenerating,
 }: {
-  generationStage?: string;
+  isIdle: boolean;
   isGenerating: boolean;
 }) {
-  if (generationStage && generationStage !== GenerationStage.COMPLETE) {
+  if (!isIdle) {
     return <MessageGenerationStage />;
   }
   if (isGenerating) {

@@ -40,33 +40,26 @@ export const ToolcallInfoRoot = React.forwardRef<
     ref,
   ) => {
     const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
-    const { thread } = useTambo();
+    const { messages } = useTambo();
     const detailsId = React.useId();
 
     const associatedToolResponse = React.useMemo(() => {
-      if (!thread?.messages) return null;
-      const currentMessageIndex = thread.messages.findIndex(
-        (m: TamboThreadMessage) => m.id === message.id,
+      if (!messages?.length) return null;
+      const toolUse = getToolCallRequest(message);
+      if (!toolUse) return null;
+      // Find a message that contains a tool_result content block with matching toolUseId
+      const responseMsg = messages.find((m: TamboThreadMessage) =>
+        Array.isArray(m.content) &&
+        m.content.some(
+          (c) => c.type === "tool_result" && (c as { toolUseId?: string }).toolUseId === toolUse.id,
+        ),
       );
-      if (currentMessageIndex === -1) return null;
-      for (let i = currentMessageIndex + 1; i < thread.messages.length; i++) {
-        const nextMessage = thread.messages[i];
-        if (nextMessage.role === "tool") {
-          return nextMessage;
-        }
-        if (
-          nextMessage.role === "assistant" &&
-          getToolCallRequest(nextMessage)
-        ) {
-          break;
-        }
-      }
-      return null;
-    }, [message, thread?.messages]);
+      return responseMsg ?? null;
+    }, [message, messages]);
 
     const toolCallRequest = getToolCallRequest(message);
     const isToolCallMessage = message.role === "assistant" && !!toolCallRequest;
-    const hasToolError = !!message.error;
+    const hasToolError = false;
     // getToolStatusMessage returns null only for non-assistant messages or missing toolCallRequest,
     // so provide a fallback for cases where it's not a tool call message
     const toolStatusMessage = getToolStatusMessage(message, isLoading) ?? "";
