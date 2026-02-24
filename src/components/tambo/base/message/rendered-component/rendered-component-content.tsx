@@ -1,19 +1,29 @@
+import type { TamboComponentContent } from "@tambo-ai/react";
 import * as React from "react";
 import { useMessageRootContext } from "../root/message-root-context";
+
+function getRenderedComponent(message: { content?: unknown[] }) {
+  if (!Array.isArray(message.content)) return undefined;
+  const componentBlock = message.content.find(
+    (c): c is TamboComponentContent => (c as TamboComponentContent)?.type === "component",
+  );
+  return componentBlock?.renderedComponent;
+}
 
 export const MessageRenderedComponentContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >((props, ref) => {
   const { message } = useMessageRootContext();
+  const renderedComponent = getRenderedComponent(message);
 
-  if (!message.renderedComponent) {
+  if (!renderedComponent) {
     return null;
   }
 
   return (
     <div ref={ref} data-slot="message-rendered-component-content" {...props}>
-      {message.renderedComponent}
+      {renderedComponent}
     </div>
   );
 });
