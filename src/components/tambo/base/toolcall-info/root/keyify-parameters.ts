@@ -1,16 +1,11 @@
-import type TamboAI from "@tambo-ai/typescript-sdk";
-
 /**
- * Converts tool call parameters from an array format to an object format.
- * Maps each parameter's name to its value for easier consumption.
- * @param parameters - Array of tool call parameters
- * @returns Object with parameter names as keys and values as values
+ * Returns tool parameters as a key-value record.
+ * In the new API, parameters are already in Record format.
+ * @param parameters - Tool parameters as a Record
+ * @returns The same record, or undefined if not provided
  */
 export function keyifyParameters(
-  parameters: TamboAI.ToolCallParameter[] | undefined,
+  parameters: Record<string, unknown> | undefined,
 ): Record<string, unknown> | undefined {
-  if (!parameters) return;
-  return Object.fromEntries(
-    parameters.map((p) => [p.parameterName, p.parameterValue]),
-  );
+  return parameters;
 }
