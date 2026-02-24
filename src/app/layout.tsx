@@ -6,7 +6,7 @@ import TamboWrapper from "../components/TamboWrapperDynamic";
 
 export const metadata: Metadata = {
   title: "Globetrotters - Travel Agency",
-  description: "Curated, affordable & unforgettable travel experiences — hand-picked for you!",
+  description: "Strategic Itineraries. Adventurous Memories",
 };
 
 export default function RootLayout({
