@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   useIsTamboTokenUpdating,
-  useTambo,
+  useTamboThread,
   useTamboThreadInput,
   type StagedImage,
 } from "@tambo-ai/react";
@@ -334,7 +334,10 @@ const messageInputVariants = cva("w-full", {
 interface MessageInputContextValue {
   value: string;
   setValue: (value: string) => void;
-  submit: (options?: Record<string, unknown>) => Promise<{ threadId: string | undefined }>;
+  submit: (options: {
+    streamResponse?: boolean;
+    resourceNames: Record<string, string>;
+  }) => Promise<void>;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isPending: boolean;
   error: Error | null;
@@ -454,7 +457,7 @@ const MessageInputInternal = React.forwardRef<
     addImages,
     removeImage,
   } = useTamboThreadInput();
-  const { cancelRun, isIdle, currentThreadId } = useTambo();
+  const { cancel, thread } = useTamboThread();
   const [displayValue, setDisplayValue] = React.useState("");
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [imageError, setImageError] = React.useState<string | null>(null);
@@ -468,18 +471,18 @@ const MessageInputInternal = React.forwardRef<
 
   React.useEffect(() => {
     // On mount, load any stored draft value, but only if current value is empty
-    const storedValue = getValueFromSessionStorage(currentThreadId);
+    const storedValue = getValueFromSessionStorage(thread.id);
     if (!storedValue) return;
     setValue((value) => value ?? storedValue);
-  }, [setValue, currentThreadId]);
+  }, [setValue, thread.id]);
 
   React.useEffect(() => {
     setDisplayValue(value);
-    storeValueInSessionStorage(currentThreadId, value);
+    storeValueInSessionStorage(thread.id, value);
     if (value && editorRef.current) {
       editorRef.current.focus();
     }
-  }, [value, currentThreadId]);
+  }, [value, thread.id]);
 
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
@@ -490,7 +493,7 @@ const MessageInputInternal = React.forwardRef<
       setSubmitError(null);
       setImageError(null);
       setDisplayValue("");
-      storeValueInSessionStorage(currentThreadId);
+      storeValueInSessionStorage(thread.id);
       setIsSubmitting(true);
 
       // Extract resource names directly from editor at submit time to ensure we have the latest
@@ -504,7 +507,10 @@ const MessageInputInternal = React.forwardRef<
       const imageIdsAtSubmitTime = images.map((image) => image.id);
 
       try {
-        await submit();
+        await submit({
+          streamResponse: true,
+          resourceNames: latestResourceNames,
+        });
         setValue("");
         // Clear only the images that were staged when submission started so
         // any images added while the request was in-flight are preserved.
@@ -527,7 +533,7 @@ const MessageInputInternal = React.forwardRef<
         );
 
         // Cancel the thread to reset loading state
-        await cancelRun();
+        await cancel();
       } finally {
         setIsSubmitting(false);
       }
@@ -538,12 +544,12 @@ const MessageInputInternal = React.forwardRef<
       setValue,
       setDisplayValue,
       setSubmitError,
-      cancelRun,
+      cancel,
       isSubmitting,
       images,
       removeImage,
       editorRef,
-      currentThreadId,
+      thread.id,
     ],
   );
 
@@ -772,7 +778,7 @@ const MessageInputTextarea = ({
 }: MessageInputTextareaProps) => {
   const { value, setValue, handleSubmit, editorRef, setImageError } =
     useMessageInputContext();
-  const { isIdle } = useTambo();
+  const { isIdle } = useTamboThread();
   const { addImage, images } = useTamboThreadInput();
   const isUpdatingToken = useIsTamboTokenUpdating();
   // Resource names are extracted from editor at submit time, no need to track in state
@@ -916,7 +922,7 @@ const MessageInputPlainTextarea = ({
 }: MessageInputPlainTextareaProps) => {
   const { value, setValue, handleSubmit, setImageError } =
     useMessageInputContext();
-  const { isIdle } = useTambo();
+  const { isIdle } = useTamboThread();
   const { addImage, images } = useTamboThreadInput();
   const isUpdatingToken = useIsTamboTokenUpdating();
   const isPending = !isIdle;
@@ -1013,7 +1019,7 @@ const MessageInputSubmitButton = React.forwardRef<
   MessageInputSubmitButtonProps
 >(({ className, children, ...props }, ref) => {
   const { isPending } = useMessageInputContext();
-  const { cancelRun, isIdle } = useTambo();
+  const { cancel, isIdle } = useTamboThread();
   const isUpdatingToken = useIsTamboTokenUpdating();
 
   // Show cancel button if either:
@@ -1024,7 +1030,7 @@ const MessageInputSubmitButton = React.forwardRef<
   const handleCancel = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    await cancelRun();
+    await cancel();
   };
 
   const buttonClasses = cn(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTambo } from "@tambo-ai/react";
+import { GenerationStage, useTambo } from "@tambo-ai/react";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
@@ -29,7 +29,7 @@ export const ScrollableMessageContainer = React.forwardRef<
   ScrollableMessageContainerProps
 >(({ className, children, ...props }, ref) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { messages, isStreaming } = useTambo();
+  const { thread } = useTambo();
   const [shouldAutoscroll, setShouldAutoscroll] = useState(true);
   const lastScrollTopRef = useRef(0);
 
@@ -38,16 +38,22 @@ export const ScrollableMessageContainer = React.forwardRef<
 
   // Create a dependency that represents all content that should trigger autoscroll
   const messagesContent = useMemo(() => {
-    if (!messages.length) return null;
+    if (!thread.messages) return null;
 
-    return messages.map((message) => ({
+    return thread.messages.map((message) => ({
       id: message.id,
       content: message.content,
+      tool_calls: message.tool_calls,
+      component: message.component,
       reasoning: message.reasoning,
+      componentState: message.componentState,
     }));
-  }, [messages]);
+  }, [thread.messages]);
 
-  // Use isStreaming directly instead of generationStage
+  const generationStage = useMemo(
+    () => thread?.generationStage ?? GenerationStage.IDLE,
+    [thread?.generationStage],
+  );
 
   // Handle scroll events to detect user scrolling
   const handleScroll = useCallback(() => {
@@ -81,7 +87,7 @@ export const ScrollableMessageContainer = React.forwardRef<
         }
       };
 
-      if (isStreaming) {
+      if (generationStage === GenerationStage.STREAMING_RESPONSE) {
         // During streaming, scroll immediately
         requestAnimationFrame(scroll);
       } else {
@@ -90,7 +96,7 @@ export const ScrollableMessageContainer = React.forwardRef<
         return () => clearTimeout(timeoutId);
       }
     }
-  }, [messagesContent, isStreaming, shouldAutoscroll]);
+  }, [messagesContent, generationStage, shouldAutoscroll]);
 
   return (
     <div

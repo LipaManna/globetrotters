@@ -26,7 +26,7 @@ export const ToolcallInfoParameters = React.forwardRef<
 >(({ asChild, ...props }, ref) => {
   const { toolCallRequest } = useToolcallInfoContext();
 
-  const keyifiedParams = keyifyParameters(toolCallRequest?.input);
+  const keyifiedParams = keyifyParameters(toolCallRequest?.parameters);
 
   const Comp = asChild ? Slot : "span";
 

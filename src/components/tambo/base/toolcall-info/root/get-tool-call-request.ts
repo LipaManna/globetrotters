@@ -1,15 +1,13 @@
-import type { TamboThreadMessage, TamboToolUseContent } from "@tambo-ai/react";
+import type { TamboThreadMessage } from "@tambo-ai/react";
+import type TamboAI from "@tambo-ai/typescript-sdk";
 
 /**
- * Get the tool use content block from the message content array
- * @param message - The message to get the tool use content from
- * @returns The tool use content block, or undefined if not found
+ * Get the tool call request from the message, or the component tool call request
+ * @param message - The message to get the tool call request from
+ * @returns The tool call request
  */
 export function getToolCallRequest(
   message: TamboThreadMessage,
-): TamboToolUseContent | undefined {
-  if (!Array.isArray(message.content)) return undefined;
-  return message.content.find(
-    (c): c is TamboToolUseContent => c.type === "tool_use",
-  );
+): TamboAI.ToolCallRequest | undefined {
+  return message.toolCallRequest ?? message.component?.toolCallRequest;
 }

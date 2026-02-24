@@ -1,6 +1,6 @@
 "use client";
 
-import { TamboThreadMessage, useTambo, type ResourceContent } from "@tambo-ai/react";
+import { TamboThreadMessage, useTambo } from "@tambo-ai/react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ExternalLink, Loader2, X } from "lucide-react";
@@ -425,15 +425,15 @@ const SamplingSubThread = ({
   parentMessageId: string;
   titleText?: string;
 }) => {
-  const { messages } = useTambo();
+  const { thread } = useTambo();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const samplingDetailsId = React.useId();
 
   const childMessages = React.useMemo(() => {
-    return messages?.filter(
+    return thread?.messages?.filter(
       (m: TamboThreadMessage) => m.parentMessageId === parentMessageId,
     );
-  }, [messages, parentMessageId]);
+  }, [thread?.messages, parentMessageId]);
 
   if (!childMessages?.length) return null;
 
@@ -677,11 +677,10 @@ function ToolResultContent({
 
       if (item.type === "text" && item.text) {
         textParts.push(item.text);
-      } else if (item.type === "resource") {
-        const resourceItem = item as ResourceContent;
-        if (resourceItem.resource) {
-          nonTextItems.push({ type: "resource", resource: resourceItem.resource as ToolResultResourceProps["resource"], index });
-        }
+      } else if (item.type === "image_url" && item.image_url?.url) {
+        nonTextItems.push({ type: "image", url: item.image_url.url, index });
+      } else if (item.type === "resource" && item.resource) {
+        nonTextItems.push({ type: "resource", resource: item.resource, index });
       }
     });
 

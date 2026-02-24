@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useTambo, useTamboThreadList } from "@tambo-ai/react";
+import { useTamboThread, useTamboThreadList } from "@tambo-ai/react";
 import { ChevronDownIcon, PlusIcon } from "lucide-react";
 import * as React from "react";
 import { useCallback } from "react";
@@ -33,7 +33,7 @@ export const ThreadDropdown = React.forwardRef<
   ThreadDropdownProps
 >(({ className, onThreadChange, ...props }, ref) => {
   const { data: threads, isLoading, error, refetch } = useTamboThreadList();
-  const { switchThread, startNewThread } = useTambo();
+  const { switchCurrentThread, startNewThread } = useTamboThread();
   const isMac =
     typeof navigator !== "undefined" && navigator.platform.startsWith("Mac");
   const modKey = isMac ? "⌥" : "Alt";
@@ -76,7 +76,7 @@ export const ThreadDropdown = React.forwardRef<
     }
 
     try {
-      switchThread(threadId);
+      switchCurrentThread(threadId);
       onThreadChange?.();
     } catch (error) {
       console.error("Failed to switch thread:", error);
@@ -137,6 +137,9 @@ export const ThreadDropdown = React.forwardRef<
 });
 ThreadDropdown.displayName = "ThreadDropdown";
 
+/**
+ * Internal component to render thread list content based on loading/error/empty states
+ */
 function ThreadListContent({
   isLoading,
   error,
@@ -145,7 +148,7 @@ function ThreadListContent({
 }: {
   isLoading: boolean;
   error: Error | null;
-  threads: { threads: { id: string; name?: string }[] } | null | undefined;
+  threads: { items: { id: string }[] } | null | undefined;
   onSwitchThread: (threadId: string) => void;
 }) {
   if (isLoading) {
@@ -168,7 +171,7 @@ function ThreadListContent({
       </DropdownMenu.Item>
     );
   }
-  if (threads?.threads.length === 0) {
+  if (threads?.items.length === 0) {
     return (
       <DropdownMenu.Item
         className="px-2 py-1.5 text-sm text-muted-foreground"
@@ -180,7 +183,7 @@ function ThreadListContent({
   }
   return (
     <>
-      {threads?.threads.map((thread) => (
+      {threads?.items.map((thread) => (
         <DropdownMenu.Item
           key={thread.id}
           className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
@@ -190,7 +193,7 @@ function ThreadListContent({
           }}
         >
           <span className="truncate max-w-[180px]">
-            {thread.name ?? `Thread ${thread.id.substring(0, 8)}`}
+            {`Thread ${thread.id.substring(0, 8)}`}
           </span>
         </DropdownMenu.Item>
       ))}

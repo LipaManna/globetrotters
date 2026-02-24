@@ -12,14 +12,15 @@ export function getToolStatusMessage(
   message: TamboThreadMessage,
   isLoading: boolean | undefined,
 ): string | null {
-  const toolUse = getToolCallRequest(message);
-  if (message.role !== "assistant" || !toolUse) {
+  if (message.role !== "assistant" || !getToolCallRequest(message)) {
     return null;
   }
 
-  const defaultMessage = isLoading
-    ? `Calling ${toolUse.name ?? "tool"}`
-    : `Called ${toolUse.name ?? "tool"}`;
-  const toolStatusMessage = toolUse.statusMessage;
-  return toolStatusMessage ?? defaultMessage;
+  const toolCallMessage = isLoading
+    ? `Calling ${getToolCallRequest(message)?.toolName ?? "tool"}`
+    : `Called ${getToolCallRequest(message)?.toolName ?? "tool"}`;
+  const toolStatusMessage = isLoading
+    ? message.component?.statusMessage
+    : message.component?.completionStatusMessage;
+  return toolStatusMessage ?? toolCallMessage;
 }
