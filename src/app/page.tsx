@@ -16,7 +16,7 @@ export default function Home() {
           <div className="innerBanCont">
             <div className="bannerTxt">
               <h3>We maximize your vacation experience the right way</h3>
-              <h1>Curated, affordable &amp; unforgettable travel experiences — hand-picked for you!</h1>
+              <h1>Strategic Itineraries. Adventurous Memories</h1>
             </div>
             <div className="banFormSec">
               <SearchBox />
