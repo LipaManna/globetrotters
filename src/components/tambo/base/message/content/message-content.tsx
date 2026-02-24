@@ -71,7 +71,7 @@ export const MessageContent = React.forwardRef<
     markdownContent,
     markdown,
     isLoading: showLoading,
-    isCancelled: false,
+    isCancelled: !!message.isCancelled,
     isReasoning: !!message.reasoning,
   });
 
