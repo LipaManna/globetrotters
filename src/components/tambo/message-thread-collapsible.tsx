@@ -11,11 +11,7 @@ import {
   MessageInputTextarea,
   MessageInputToolbar,
 } from "@/components/tambo/message-input";
-import {
-  MessageSuggestions,
-  MessageSuggestionsList,
-  MessageSuggestionsStatus,
-} from "@/components/tambo/message-suggestions";
+// MessageSuggestions removed
 import { ScrollableMessageContainer } from "@/components/tambo/scrollable-message-container";
 import {
   ThreadContent,
@@ -23,7 +19,7 @@ import {
 } from "@/components/tambo/thread-content";
 import { ThreadDropdown } from "@/components/tambo/thread-dropdown";
 import { cn } from "@/lib/utils";
-import { type Suggestion } from "@tambo-ai/react";
+// Removed Suggestion import
 import { type VariantProps } from "class-variance-authority";
 import { XIcon } from "lucide-react";
 import { Collapsible } from "radix-ui";
@@ -212,30 +208,11 @@ export const MessageThreadCollapsible = React.forwardRef<
     const THREAD_CONFIG = {
       labels: {
         openState: "Conversations",
-        closedState: "Ask Globetrotters Assistent",
+        closedState: "Ask Us Anything About Your Trip",
       },
     };
 
-    const defaultSuggestions: Suggestion[] = [
-      {
-        id: "suggestion-1",
-        title: "Get started",
-        detailedSuggestion: "What can you help me with?",
-        messageId: "welcome-query",
-      },
-      {
-        id: "suggestion-2",
-        title: "Learn more",
-        detailedSuggestion: "Tell me about your capabilities.",
-        messageId: "capabilities-query",
-      },
-      {
-        id: "suggestion-3",
-        title: "Examples",
-        detailedSuggestion: "Show me some example queries I can try.",
-        messageId: "examples-query",
-      },
-    ];
+    // Suggestions removed
 
     return (
       <CollapsibleContainer
@@ -264,10 +241,7 @@ export const MessageThreadCollapsible = React.forwardRef<
               </ThreadContent>
             </ScrollableMessageContainer>
 
-            {/* Message Suggestions Status */}
-            <MessageSuggestions>
-              <MessageSuggestionsStatus />
-            </MessageSuggestions>
+            {/* Message Suggestions Status Removed */}
 
             {/* Message input */}
             <div className="p-4">
@@ -285,10 +259,7 @@ export const MessageThreadCollapsible = React.forwardRef<
               </MessageInput>
             </div>
 
-            {/* Message suggestions */}
-            <MessageSuggestions initialSuggestions={defaultSuggestions}>
-              <MessageSuggestionsList />
-            </MessageSuggestions>
+            {/* Message suggestions removed */}
           </div>
         </Collapsible.Content>
       </CollapsibleContainer>

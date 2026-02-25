@@ -5,6 +5,7 @@ import { LocationPermissionCard } from "@/components/tambo/addedComponents/Locat
 import { SmartRecommendations } from "@/components/tambo/addedComponents/SmartRecommendations";
 import { PackageCustomizer } from "@/components/tambo/addedComponents/PackageCustomizer";
 import { ContactDetails } from "@/components/tambo/addedComponents/ContactDetails";
+import { TripPlannerSearch } from "@/components/tambo/addedComponents/TripPlannerSearch";
 import { NavigationTool } from "@/components/tambo/tools/NavigationTool";
 import { z } from "zod";
 import { TamboTool } from "@tambo-ai/react";
@@ -85,6 +86,12 @@ export const components = [
       lat: z.number().optional(),
       lng: z.number().optional()
     }),
+  },
+  {
+    name: "TripPlannerSearch",
+    description: "A trip planning form that allows users to specify destination, duration, budget, and interests to get AI travel suggestions. Show this when a user asks to plan a trip or needs to input complex search criteria.",
+    component: TripPlannerSearch,
+    propsSchema: z.object({}),
   },
 ];
 

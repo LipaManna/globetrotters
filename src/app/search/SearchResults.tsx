@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { TripPlannerSearch } from '../../components/tambo/addedComponents/TripPlannerSearch';
 
 interface Package {
   id: string;
@@ -129,6 +130,10 @@ export default function SearchResults() {
 
       <div className="searchFilters gapsec">
         <div className="container">
+          <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>AI Trip Planner & Cost Estimator</h2>
+          <TripPlannerSearch />
+          
+          <h2 style={{ textAlign: 'center', marginBottom: '30px', marginTop: '50px' }}>Or Browse Packages Manually</h2>
           <div className="banFormSec" style={{ marginBottom: '40px' }}>
             <div className="formFields">
               <div className="row">
