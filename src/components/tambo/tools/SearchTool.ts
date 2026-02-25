@@ -36,11 +36,14 @@ export const searchPackagesAction = async ({ query, category }: { query?: string
 
     if (!query) return packages.slice(0, 5).map(formatPackage);
     
-    const q = query.toLowerCase();
-    return packages.filter((pkg: any) => 
-      pkg.title?.toLowerCase().includes(q) ||
-      pkg.location?.toLowerCase().includes(q)
-    ).slice(0, 5).map(formatPackage);
+    const q = query.toLowerCase().trim();
+    return packages.filter((pkg: any) => {
+      const titleMatch = pkg.title?.toLowerCase().includes(q) || false;
+      const locationMatch = pkg.location?.toLowerCase().includes(q) || false;
+      const tagsMatch = Array.isArray(pkg.tags) ? pkg.tags.some((tag: string) => tag?.toLowerCase().includes(q)) : false;
+      
+      return titleMatch || locationMatch || tagsMatch;
+    }).slice(0, 5).map(formatPackage);
   } catch (e: any) {
     console.error("Search tool error:", e);
     return { error: `Search failed: ${e.message || String(e)}` };

@@ -56,10 +56,10 @@ export default function SearchResults() {
     return allPackages.filter(pkg => {
       // Filter by destination
       if (destination) {
-        const searchTerm = destination.toLowerCase();
-        const matchesLocation = pkg.location.toLowerCase().includes(searchTerm);
-        const matchesTitle = pkg.title.toLowerCase().includes(searchTerm);
-        const matchesTags = pkg.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+        const searchTerm = destination.toLowerCase().trim();
+        const matchesLocation = pkg.location?.toLowerCase().includes(searchTerm) || false;
+        const matchesTitle = pkg.title?.toLowerCase().includes(searchTerm) || false;
+        const matchesTags = Array.isArray(pkg.tags) ? pkg.tags.some(tag => tag?.toLowerCase().includes(searchTerm)) : false;
         
         if (!matchesLocation && !matchesTitle && !matchesTags) {
           return false;

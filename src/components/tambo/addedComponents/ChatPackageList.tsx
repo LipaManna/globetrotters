@@ -42,12 +42,13 @@ export function ChatPackageList({ limit = 5, category = 'all', query }: ChatPack
   }
 
   if (query) {
-    const q = query.toLowerCase();
-    displayPackages = displayPackages.filter(p => 
-      p.title?.toLowerCase().includes(q) || 
-      p.location?.toLowerCase().includes(q) ||
-      p.tags?.some(tag => tag.toLowerCase().includes(q))
-    );
+    const q = query.toLowerCase().trim();
+    displayPackages = displayPackages.filter(p => {
+      const titleMatch = p.title?.toLowerCase().includes(q) || false;
+      const locationMatch = p.location?.toLowerCase().includes(q) || false;
+      const tagsMatch = Array.isArray(p.tags) ? p.tags.some(tag => tag?.toLowerCase().includes(q)) : false;
+      return titleMatch || locationMatch || tagsMatch;
+    });
   }
   
   if (limit > 0) {
