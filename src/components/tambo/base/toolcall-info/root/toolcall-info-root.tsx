@@ -40,7 +40,8 @@ export const ToolcallInfoRoot = React.forwardRef<
     ref,
   ) => {
     const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
-    const { messages } = useTambo();
+    const { thread } = useTambo();
+    const messages = thread?.messages || [];
     const detailsId = React.useId();
 
     const associatedToolResponse = React.useMemo(() => {
@@ -51,7 +52,7 @@ export const ToolcallInfoRoot = React.forwardRef<
       const responseMsg = messages.find((m: TamboThreadMessage) =>
         Array.isArray(m.content) &&
         m.content.some(
-          (c) => c.type === "tool_result" && (c as { toolUseId?: string }).toolUseId === toolUse.id,
+          (c: any) => c.type === "tool_result" && c.toolUseId === toolUse.id,
         ),
       );
       return responseMsg ?? null;

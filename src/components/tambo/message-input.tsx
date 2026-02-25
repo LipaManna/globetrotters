@@ -334,7 +334,7 @@ const messageInputVariants = cva("w-full", {
 interface MessageInputContextValue {
   value: string;
   setValue: (value: string) => void;
-  submit: (options?: Record<string, unknown>) => Promise<{ threadId: string | undefined }>;
+  submit: (options?: Record<string, unknown>) => Promise<void>;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isPending: boolean;
   error: Error | null;
@@ -454,7 +454,7 @@ const MessageInputInternal = React.forwardRef<
     addImages,
     removeImage,
   } = useTamboThreadInput();
-  const { cancelRun, isIdle, currentThreadId } = useTambo();
+  const { cancel, isIdle, currentThreadId } = useTambo();
   const [displayValue, setDisplayValue] = React.useState("");
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [imageError, setImageError] = React.useState<string | null>(null);
@@ -468,14 +468,14 @@ const MessageInputInternal = React.forwardRef<
 
   React.useEffect(() => {
     // On mount, load any stored draft value, but only if current value is empty
-    const storedValue = getValueFromSessionStorage(currentThreadId);
+    const storedValue = getValueFromSessionStorage(currentThreadId || "new");
     if (!storedValue) return;
     setValue((value) => value ?? storedValue);
   }, [setValue, currentThreadId]);
 
   React.useEffect(() => {
     setDisplayValue(value);
-    storeValueInSessionStorage(currentThreadId, value);
+    storeValueInSessionStorage(currentThreadId || "new", value);
     if (value && editorRef.current) {
       editorRef.current.focus();
     }
@@ -490,7 +490,7 @@ const MessageInputInternal = React.forwardRef<
       setSubmitError(null);
       setImageError(null);
       setDisplayValue("");
-      storeValueInSessionStorage(currentThreadId);
+      storeValueInSessionStorage(currentThreadId || "new");
       setIsSubmitting(true);
 
       // Extract resource names directly from editor at submit time to ensure we have the latest
@@ -501,7 +501,7 @@ const MessageInputInternal = React.forwardRef<
         latestResourceNames = extracted.resourceNames;
       }
 
-      const imageIdsAtSubmitTime = images.map((image) => image.id);
+      const imageIdsAtSubmitTime = images.map((image) => image.id).filter((id): id is string => id !== null);
 
       try {
         await submit();
@@ -527,7 +527,7 @@ const MessageInputInternal = React.forwardRef<
         );
 
         // Cancel the thread to reset loading state
-        await cancelRun();
+        await cancel();
       } finally {
         setIsSubmitting(false);
       }
@@ -538,7 +538,7 @@ const MessageInputInternal = React.forwardRef<
       setValue,
       setDisplayValue,
       setSubmitError,
-      cancelRun,
+      cancel,
       isSubmitting,
       images,
       removeImage,
@@ -1013,7 +1013,7 @@ const MessageInputSubmitButton = React.forwardRef<
   MessageInputSubmitButtonProps
 >(({ className, children, ...props }, ref) => {
   const { isPending } = useMessageInputContext();
-  const { cancelRun, isIdle } = useTambo();
+  const { cancel, isIdle } = useTambo();
   const isUpdatingToken = useIsTamboTokenUpdating();
 
   // Show cancel button if either:
@@ -1024,7 +1024,7 @@ const MessageInputSubmitButton = React.forwardRef<
   const handleCancel = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    await cancelRun();
+    await cancel();
   };
 
   const buttonClasses = cn(
