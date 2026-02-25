@@ -1,6 +1,6 @@
 "use client";
 
-import { TamboThreadMessage, useTambo } from "@tambo-ai/react";
+import { TamboThreadMessage, useTambo, type ResourceContent } from "@tambo-ai/react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ExternalLink, Loader2, X } from "lucide-react";
@@ -425,8 +425,7 @@ const SamplingSubThread = ({
   parentMessageId: string;
   titleText?: string;
 }) => {
-  const { thread } = useTambo();
-  const messages = thread?.messages || [];
+  const { messages } = useTambo();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const samplingDetailsId = React.useId();
 
@@ -679,7 +678,7 @@ function ToolResultContent({
       if (item.type === "text" && item.text) {
         textParts.push(item.text);
       } else if (item.type === "resource") {
-        const resourceItem = item as { resource: any };
+        const resourceItem = item as ResourceContent;
         if (resourceItem.resource) {
           nonTextItems.push({ type: "resource", resource: resourceItem.resource as ToolResultResourceProps["resource"], index });
         }

@@ -1,10 +1,10 @@
-import type { TamboThreadMessage } from "@tambo-ai/react";
+import type { TamboThreadMessage, TamboToolUseContent } from "@tambo-ai/react";
 import * as React from "react";
 
 export interface ToolcallInfoContextValue {
   isExpanded: boolean;
   setIsExpanded: (expanded: boolean) => void;
-  toolCallRequest: any | undefined;
+  toolCallRequest: TamboToolUseContent | undefined;
   hasToolError: boolean;
   toolStatusMessage: string;
   associatedToolResponse: TamboThreadMessage | null;

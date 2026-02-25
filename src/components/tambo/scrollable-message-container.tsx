@@ -29,9 +29,7 @@ export const ScrollableMessageContainer = React.forwardRef<
   ScrollableMessageContainerProps
 >(({ className, children, ...props }, ref) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { thread, streaming } = useTambo();
-  const messages = thread?.messages || [];
-  const isStreaming = streaming;
+  const { messages, isStreaming } = useTambo();
   const [shouldAutoscroll, setShouldAutoscroll] = useState(true);
   const lastScrollTopRef = useRef(0);
 
@@ -40,7 +38,7 @@ export const ScrollableMessageContainer = React.forwardRef<
 
   // Create a dependency that represents all content that should trigger autoscroll
   const messagesContent = useMemo(() => {
-    if (!messages || !messages.length) return null;
+    if (!messages.length) return null;
 
     return messages.map((message) => ({
       id: message.id,

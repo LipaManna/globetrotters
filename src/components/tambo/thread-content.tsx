@@ -73,8 +73,7 @@ export interface ThreadContentProps extends React.HTMLAttributes<HTMLDivElement>
  */
 const ThreadContent = React.forwardRef<HTMLDivElement, ThreadContentProps>(
   ({ children, className, variant, ...props }, ref) => {
-    const { thread, isIdle } = useTambo();
-    const messages = thread?.messages;
+    const { messages, isIdle } = useTambo();
     const isGenerating = !isIdle;
 
     const contextValue = React.useMemo(

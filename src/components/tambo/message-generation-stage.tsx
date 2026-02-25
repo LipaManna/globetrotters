@@ -20,8 +20,8 @@ export function MessageGenerationStage({
   showLabel = true,
   ...props
 }: GenerationStageProps) {
-  const { generationStage, isIdle } = useTambo();
-  const stage = generationStage;
+  const { streamingState, isIdle } = useTambo();
+  const stage = streamingState?.status;
 
   // Only render if we have a generation stage and not idle
   if (!stage || isIdle) {
@@ -30,11 +30,9 @@ export function MessageGenerationStage({
 
   // Map stage names to more user-friendly labels
   const stageLabels: Record<string, string> = {
-    IDLE: "Idle",
-    FETCHING_CONTEXT: "Preparing response",
-    STREAMING_RESPONSE: "Generating response",
-    CHOOSING_COMPONENT: "Choosing component",
-    HYDRATING_COMPONENT: "Rendering component",
+    idle: "Idle",
+    waiting: "Preparing response",
+    streaming: "Generating response",
   };
 
   const label =

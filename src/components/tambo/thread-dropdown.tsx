@@ -33,7 +33,7 @@ export const ThreadDropdown = React.forwardRef<
   ThreadDropdownProps
 >(({ className, onThreadChange, ...props }, ref) => {
   const { data: threads, isLoading, error, refetch } = useTamboThreadList();
-  const { switchCurrentThread, startNewThread } = useTambo();
+  const { switchThread, startNewThread } = useTambo();
   const isMac =
     typeof navigator !== "undefined" && navigator.platform.startsWith("Mac");
   const modKey = isMac ? "⌥" : "Alt";
@@ -76,7 +76,7 @@ export const ThreadDropdown = React.forwardRef<
     }
 
     try {
-      switchCurrentThread(threadId);
+      switchThread(threadId);
       onThreadChange?.();
     } catch (error) {
       console.error("Failed to switch thread:", error);
@@ -145,7 +145,7 @@ function ThreadListContent({
 }: {
   isLoading: boolean;
   error: Error | null;
-  threads: any;
+  threads: { threads: { id: string; name?: string }[] } | null | undefined;
   onSwitchThread: (threadId: string) => void;
 }) {
   if (isLoading) {
@@ -168,8 +168,7 @@ function ThreadListContent({
       </DropdownMenu.Item>
     );
   }
-  const list = threads?.data || threads?.items || threads?.threads || threads;
-  if (!list || list.length === 0) {
+  if (threads?.threads.length === 0) {
     return (
       <DropdownMenu.Item
         className="px-2 py-1.5 text-sm text-muted-foreground"
@@ -181,7 +180,7 @@ function ThreadListContent({
   }
   return (
     <>
-      {list.map((thread: any) => (
+      {threads?.threads.map((thread) => (
         <DropdownMenu.Item
           key={thread.id}
           className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"

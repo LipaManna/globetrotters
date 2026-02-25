@@ -27,7 +27,7 @@ interface MessageSuggestionsContextValue {
   accept: (options: { suggestion: Suggestion }) => Promise<void>;
   isGenerating: boolean;
   error: Error | null;
-  messages: ReturnType<typeof useTambo>["thread"] extends { messages: infer M } ? M : any[];
+  messages: ReturnType<typeof useTambo>["messages"];
   isIdle: boolean;
   isMac: boolean;
 }
@@ -94,15 +94,14 @@ const MessageSuggestions = React.forwardRef<
     },
     ref,
   ) => {
-    const { thread, isIdle } = useTambo();
-    const messages = thread?.messages || [];
+    const { messages, isIdle } = useTambo();
     const {
       suggestions: generatedSuggestions,
       selectedSuggestionId,
       accept,
+      isGenerating,
       error,
     } = useTamboSuggestions({ maxSuggestions });
-    const isGenerating = false; // Is this in useTamboSuggestions still? If not, dummy it.
 
     // Combine initial and generated suggestions, but only use initial ones when thread is empty
     const suggestions = React.useMemo(() => {

@@ -1,12 +1,13 @@
 import { Slot } from "@radix-ui/react-slot";
+import type { TamboComponentContent } from "@tambo-ai/react";
 import * as React from "react";
 import { useMessageRootContext } from "../root/message-root-context";
 
 function getRenderedComponent(message: { content?: unknown[] }) {
   if (!Array.isArray(message.content)) return undefined;
   const componentBlock = message.content.find(
-    (c: any) => c?.type === "component",
-  ) as any;
+    (c): c is TamboComponentContent => (c as TamboComponentContent)?.type === "component",
+  );
   return componentBlock?.renderedComponent;
 }
 
