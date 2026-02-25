@@ -324,11 +324,8 @@ const MessageSuggestionsList = React.forwardRef<
   HTMLDivElement,
   MessageSuggestionsListProps
 >(({ className, ...props }, ref) => {
-  const { suggestions, selectedSuggestionId, accept, isGenerating, isMac } =
+  const { suggestions, selectedSuggestionId, accept, isGenerating } =
     useMessageSuggestionsContext();
-
-  const modKey = isMac ? "⌘" : "Ctrl";
-  const altKey = isMac ? "⌥" : "Alt";
 
   // Create placeholder suggestions when there are no real suggestions
   const placeholders = Array(3).fill(null);
@@ -345,35 +342,26 @@ const MessageSuggestionsList = React.forwardRef<
       {...props}
     >
       {suggestions.length > 0
-        ? suggestions.map((suggestion, index) => (
-            <Tooltip
+        ? suggestions.map((suggestion) => (
+            <button
               key={suggestion.id}
-              content={
-                <span suppressHydrationWarning>
-                  {modKey}+{altKey}+{index + 1}
-                </span>
+              className={cn(
+                "py-2 px-2.5 rounded-2xl text-xs transition-colors",
+                "border border-flat",
+                getSuggestionButtonClassName({
+                  isGenerating,
+                  isSelected: selectedSuggestionId === suggestion.id,
+                }),
+              )}
+              onClick={async () =>
+                !isGenerating && (await accept({ suggestion }))
               }
-              side="top"
+              disabled={isGenerating}
+              data-suggestion-id={suggestion.id}
+              data-suggestion-index={suggestions.indexOf(suggestion)}
             >
-              <button
-                className={cn(
-                  "py-2 px-2.5 rounded-2xl text-xs transition-colors",
-                  "border border-flat",
-                  getSuggestionButtonClassName({
-                    isGenerating,
-                    isSelected: selectedSuggestionId === suggestion.id,
-                  }),
-                )}
-                onClick={async () =>
-                  !isGenerating && (await accept({ suggestion }))
-                }
-                disabled={isGenerating}
-                data-suggestion-id={suggestion.id}
-                data-suggestion-index={index}
-              >
-                <span className="font-medium">{suggestion.title}</span>
-              </button>
-            </Tooltip>
+              <span className="font-medium">{suggestion.title}</span>
+            </button>
           ))
         : // Render placeholder buttons when no suggestions are available
           placeholders.map((_, index) => (

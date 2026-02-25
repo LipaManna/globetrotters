@@ -13,9 +13,10 @@ import Link from "next/link";
 interface ChatPackageListProps {
   limit?: number;
   category?: 'domestic' | 'international' | 'all';
+  query?: string;
 }
 
-export function ChatPackageList({ limit = 5, category = 'all' }: ChatPackageListProps) {
+export function ChatPackageList({ limit = 5, category = 'all', query }: ChatPackageListProps) {
   const { packages, loading, error } = usePackages();
 
   if (loading) {
@@ -36,8 +37,17 @@ export function ChatPackageList({ limit = 5, category = 'all' }: ChatPackageList
 
   let displayPackages = packages;
   
-  if (category !== 'all') {
+  if (category && category !== 'all') {
     displayPackages = displayPackages.filter(p => p.category === category);
+  }
+
+  if (query) {
+    const q = query.toLowerCase();
+    displayPackages = displayPackages.filter(p => 
+      p.title?.toLowerCase().includes(q) || 
+      p.location?.toLowerCase().includes(q) ||
+      p.tags?.some(tag => tag.toLowerCase().includes(q))
+    );
   }
   
   if (limit > 0) {

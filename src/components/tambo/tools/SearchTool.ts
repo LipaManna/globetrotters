@@ -28,6 +28,7 @@ export const searchPackagesAction = async ({ query, category }: { query?: string
       title: pkg.title,
       location: pkg.location,
       category: pkg.category,
+      duration: `${pkg.days} Days, ${pkg.nights} Nights`,
       description: pkg.description ? pkg.description.substring(0, 100) + "..." : "",
       price: pkg.cost_per_person,
       url: `/package/${pkg.id}` 

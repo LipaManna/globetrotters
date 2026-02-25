@@ -55,11 +55,12 @@ export const components = [
   },
   {
     name: "ChatPackageList",
-    description: "Display a list of available holiday packages directly in the chat.",
+    description: "Display a list of available holiday packages directly in the chat. Use the `query` parameter to show packages matching a specific destination or keyword! (e.g. { query: 'Europe' })",
     component: ChatPackageList,
     propsSchema: z.object({
       limit: z.number().optional().describe("Number of packages to display (default: 5)"),
       category: z.enum(['domestic', 'international', 'all']).optional().describe("Filter by category (default: all)"),
+      query: z.string().optional().describe("Search keywords, destination name, or tags to filter packages by."),
     }),
   },
   {
@@ -90,7 +91,7 @@ export const components = [
   },
   {
     name: "TripPlannerSearch",
-    description: "A trip planning form that allows users to specify destination, duration, budget, and interests to get AI travel suggestions. Show this when a user asks to plan a trip or needs to input complex search criteria. WHEN RESPONDING TO A TRIP PLAN REQUEST: 1. FIRST, intelligently use the `search_packages` tool to check if existing pre-made packages match the criteria. If found, recommend them. 2. If no existing packages match or the user wants a custom trip, evaluate feasibility. If the budget/duration is completely unrealistic (e.g., $100 for a month in Europe), DO NOT plan a trip. Politely explain why it's not feasible. 3. If feasible, generate the tailored itinerary using the `TripItineraryDisplay` component.",
+    description: "A trip planning form that allows users to specify destination, duration, budget, and interests to get AI travel suggestions. Show this when a user asks to plan a trip or needs to input complex search criteria. WHEN RESPONDING TO A TRIP PLAN REQUEST: 1. FIRST, intelligently use the `search_packages` tool by passing the requested destination into the `query` parameter to check if existing pre-made packages match the criteria. Check if the returned package price and duration align with the user request. If a match is found based on price and duration, strongly recommend it. 2. If no existing packages match or the user wants a custom trip, evaluate feasibility. If the budget/duration is completely unrealistic (e.g., 10000 INR for 10 days in Europe), DO NOT plan a trip. Politely explain why it's not feasible and cite general estimated costs. 3. If feasible, generate the tailored itinerary using the `TripItineraryDisplay` component.",
     component: TripPlannerSearch,
     propsSchema: z.object({}),
   },
@@ -131,6 +132,7 @@ export const tools: TamboTool[] = [
       id: z.string(),
       title: z.string(),
       location: z.string(),
+      duration: z.string().optional(),
       price: z.number(),
       url: z.string()
     })),

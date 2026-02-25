@@ -11,15 +11,18 @@ import {
   MessageInputTextarea,
   MessageInputToolbar,
 } from "@/components/tambo/message-input";
-// MessageSuggestions removed
+import {
+  MessageSuggestions,
+  MessageSuggestionsList,
+  MessageSuggestionsStatus,
+} from "@/components/tambo/message-suggestions";
 import { ScrollableMessageContainer } from "@/components/tambo/scrollable-message-container";
 import {
   ThreadContent,
   ThreadContentMessages,
 } from "@/components/tambo/thread-content";
-import { ThreadDropdown } from "@/components/tambo/thread-dropdown";
 import { cn } from "@/lib/utils";
-// Removed Suggestion import
+import { type Suggestion } from "@tambo-ai/react";
 import { type VariantProps } from "class-variance-authority";
 import { XIcon } from "lucide-react";
 import { Collapsible } from "radix-ui";
@@ -64,9 +67,6 @@ export interface MessageThreadCollapsibleProps extends React.HTMLAttributes<HTML
  */
 const useCollapsibleState = (defaultOpen = false) => {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
-  const isMac =
-    typeof navigator !== "undefined" && navigator.platform.startsWith("Mac");
-  const shortcutText = isMac ? "⌘K" : "Ctrl+K";
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -80,7 +80,7 @@ const useCollapsibleState = (defaultOpen = false) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  return { isOpen, setIsOpen, shortcutText };
+  return { isOpen, setIsOpen };
 };
 
 /**
@@ -120,9 +120,7 @@ CollapsibleContainer.displayName = "CollapsibleContainer";
  */
 interface CollapsibleTriggerProps {
   isOpen: boolean;
-  shortcutText: string;
   onClose: () => void;
-  onThreadChange: () => void;
   config: {
     labels: {
       openState: string;
@@ -136,9 +134,7 @@ interface CollapsibleTriggerProps {
  */
 const CollapsibleTrigger = ({
   isOpen,
-  shortcutText,
   onClose,
-  onThreadChange,
   config,
 }: CollapsibleTriggerProps) => (
   <>
@@ -153,21 +149,12 @@ const CollapsibleTrigger = ({
           aria-controls="message-thread-content"
         >
           <span>{config.labels.closedState}</span>
-          <span
-            className="text-xs text-muted-foreground pl-8"
-            suppressHydrationWarning
-          >
-            {`(${shortcutText})`}
-          </span>
         </button>
       </Collapsible.Trigger>
     )}
     {isOpen && (
       <div className="flex items-center justify-between w-full p-4">
-        <div className="flex items-center gap-2">
-          <span>{config.labels.openState}</span>
-          <ThreadDropdown onThreadChange={onThreadChange} />
-        </div>
+        <span>{config.labels.openState}</span>
         <button
           className="p-1 rounded-full hover:bg-muted/70 transition-colors cursor-pointer"
           onClick={(e) => {
@@ -192,27 +179,42 @@ export const MessageThreadCollapsible = React.forwardRef<
     { className, defaultOpen = false, variant, height, maxHeight, ...props },
     ref,
   ) => {
-    const { isOpen, setIsOpen, shortcutText } =
+    const { isOpen, setIsOpen } =
       useCollapsibleState(defaultOpen);
 
     // Backward compatibility: prefer height, fall back to maxHeight
     const effectiveHeight = height ?? maxHeight;
-
-    const handleThreadChange = React.useCallback(() => {
-      setIsOpen(true);
-    }, [setIsOpen]);
 
     /**
      * Configuration for the MessageThreadCollapsible component
      */
     const THREAD_CONFIG = {
       labels: {
-        openState: "Conversations",
-        closedState: "Ask Us Anything About Your Trip",
+        openState: "Travel Assistant",
+        closedState: "Travel Assistant",
       },
     };
 
-    // Suggestions removed
+    const defaultSuggestions: Suggestion[] = [
+      {
+        id: "suggestion-1",
+        title: "Get started",
+        detailedSuggestion: "What can you help me with?",
+        messageId: "welcome-query",
+      },
+      {
+        id: "suggestion-2",
+        title: "Learn more",
+        detailedSuggestion: "Tell me about your capabilities.",
+        messageId: "capabilities-query",
+      },
+      {
+        id: "suggestion-3",
+        title: "Examples",
+        detailedSuggestion: "Show me some example queries I can try.",
+        messageId: "examples-query",
+      },
+    ];
 
     return (
       <CollapsibleContainer
@@ -224,9 +226,7 @@ export const MessageThreadCollapsible = React.forwardRef<
       >
         <CollapsibleTrigger
           isOpen={isOpen}
-          shortcutText={shortcutText}
           onClose={() => setIsOpen(false)}
-          onThreadChange={handleThreadChange}
           config={THREAD_CONFIG}
         />
         <Collapsible.Content>
@@ -241,7 +241,10 @@ export const MessageThreadCollapsible = React.forwardRef<
               </ThreadContent>
             </ScrollableMessageContainer>
 
-            {/* Message Suggestions Status Removed */}
+            {/* Message Suggestions Status */}
+            <MessageSuggestions>
+              <MessageSuggestionsStatus />
+            </MessageSuggestions>
 
             {/* Message input */}
             <div className="p-4">
@@ -259,7 +262,10 @@ export const MessageThreadCollapsible = React.forwardRef<
               </MessageInput>
             </div>
 
-            {/* Message suggestions removed */}
+            {/* Message suggestions */}
+            <MessageSuggestions initialSuggestions={defaultSuggestions}>
+              <MessageSuggestionsList />
+            </MessageSuggestions>
           </div>
         </Collapsible.Content>
       </CollapsibleContainer>
