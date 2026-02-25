@@ -1,10 +1,12 @@
 import { RegistrationForm } from "@/components/tambo/addedComponents/RegistrationForm";
 import { ChatPackageList } from "@/components/tambo/addedComponents/ChatPackageList";
 import { ChatPackageCard } from "@/components/tambo/addedComponents/ChatPackageCard";
-import { LocationPermissionCard } from "@/components/tambo/addedComponents/LocationPermissionCard";
-import { SmartRecommendations } from "@/components/tambo/addedComponents/SmartRecommendations";
-import { PackageCustomizer } from "@/components/tambo/addedComponents/PackageCustomizer";
 import { ContactDetails } from "@/components/tambo/addedComponents/ContactDetails";
+import { LocationPermissionCard } from "@/components/tambo/addedComponents/LocationPermissionCard";
+import { PackageCustomizer } from "@/components/tambo/addedComponents/PackageCustomizer";
+import { SmartRecommendations } from "@/components/tambo/addedComponents/SmartRecommendations";
+import { TripPlanner } from "@/components/tambo/addedComponents/TripPlanner";
+import { TravelSafetyResources } from "@/components/tambo/addedComponents/TravelSafetyResources";
 import { NavigationTool } from "@/components/tambo/tools/NavigationTool";
 import { z } from "zod";
 import { TamboTool } from "@tambo-ai/react";
@@ -16,6 +18,23 @@ import { getDateTimeSchema, getDateTimeAction } from "@/components/tambo/tools/G
 import { getLocationSchema, getLocationAction } from "@/components/tambo/tools/GetLocation";
 
 export const components = [
+  {
+    name: "TripPlanner",
+    description: "Show this interactive trip planner form when a user wants to plan a trip, estimate costs, or needs travel suggestions based on their dates, budget, and interests. Use this for any trip planning or cost estimation request.",
+    component: TripPlanner,
+    propsSchema: z.object({
+      destinationHint: z.string().optional().describe("An optional destination name to pre-fill or hint at in the planner"),
+    }),
+  },
+  {
+    name: "TravelSafetyResources",
+    description: "Show this when a user asks about travel safety, emergency contacts, visa requirements, travel tips, or authority contacts. This displays a comprehensive travel safety and resources panel.",
+    component: TravelSafetyResources,
+    propsSchema: z.object({
+      destination: z.string().optional().describe("The destination the user is asking about"),
+      initialSection: z.enum(["emergency", "visa", "tips", "contacts"]).optional().describe("The section to open first: emergency, visa, tips, or contacts"),
+    }),
+  },
   {
     name: "ContactDetails",
     description: "Show this immediately whenever a user asks for contact details, phone number, email, or who to talk to. This shows the details for Subhajit.",
@@ -138,3 +157,17 @@ export const tools: TamboTool[] = [
     outputSchema: z.any(),
   },
 ];
+
+export const contextHelpers = {
+  travel_assistant_context: () =>
+    `You are a friendly and knowledgeable travel assistant for Globetrotters, a premium travel agency. Your primary focus is helping users with travel-related topics including:
+- Discovering and booking holiday packages
+- Trip planning and itinerary advice
+- Travel safety, visa requirements, and emergency information
+- Budget and cost estimation for trips
+- Destination recommendations based on interests
+
+When users ask about non-travel topics, respond in a warm, travel-friendly way. For example, if someone asks about vitamin D deficiency, suggest sunny destinations like the Maldives or Spain that would naturally boost their vitamin D levels.
+
+Always be friendly, enthusiastic about travel, and steer conversations back to how Globetrotters can help make their travel dreams a reality. Use travel-related metaphors and analogies whenever appropriate.`,
+};
