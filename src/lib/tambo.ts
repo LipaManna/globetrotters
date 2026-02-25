@@ -6,6 +6,7 @@ import { SmartRecommendations } from "@/components/tambo/addedComponents/SmartRe
 import { PackageCustomizer } from "@/components/tambo/addedComponents/PackageCustomizer";
 import { ContactDetails } from "@/components/tambo/addedComponents/ContactDetails";
 import { TripPlannerSearch } from "@/components/tambo/addedComponents/TripPlannerSearch";
+import { TripItineraryDisplay } from "@/components/tambo/addedComponents/TripItineraryDisplay";
 import { NavigationTool } from "@/components/tambo/tools/NavigationTool";
 import { z } from "zod";
 import { TamboTool } from "@tambo-ai/react";
@@ -89,9 +90,34 @@ export const components = [
   },
   {
     name: "TripPlannerSearch",
-    description: "A trip planning form that allows users to specify destination, duration, budget, and interests to get AI travel suggestions. Show this when a user asks to plan a trip or needs to input complex search criteria.",
+    description: "A trip planning form that allows users to specify destination, duration, budget, and interests to get AI travel suggestions. Show this when a user asks to plan a trip or needs to input complex search criteria. WHEN RESPONDING TO A TRIP PLAN REQUEST: 1. FIRST, intelligently use the `search_packages` tool to check if existing pre-made packages match the criteria. If found, recommend them. 2. If no existing packages match or the user wants a custom trip, evaluate feasibility. If the budget/duration is completely unrealistic (e.g., $100 for a month in Europe), DO NOT plan a trip. Politely explain why it's not feasible. 3. If feasible, generate the tailored itinerary using the `TripItineraryDisplay` component.",
     component: TripPlannerSearch,
     propsSchema: z.object({}),
+  },
+  {
+    name: "TripItineraryDisplay",
+    description: "CRITICAL INSTRUCTION: You MUST use this `TripItineraryDisplay` component to show the final tailored travel results, itinerary, and cost estimate. REQUIRED: Keep all text EXTREMELY CONCISE. Use very short bullet points (1-2 sentences max) for activities and tips. DO NOT write long paragraphs. Populate the component's props with a detailed, creative day-by-day itinerary, accurate cost breakdown, and helpful travel tips. Use this WHENEVER providing a custom trip plan.",
+    component: TripItineraryDisplay,
+    propsSchema: z.object({
+      destination: z.string().describe("The destination name (e.g., 'Paris, France')"),
+      duration: z.string().describe("The length of the trip (e.g., '5 Days, 4 Nights')"),
+      totalCost: z.number().describe("The total estimated cost amount"),
+      currency: z.string().describe("The currency symbol or code (e.g., '$', 'INR', '€')"),
+      costBreakdown: z.array(
+        z.object({
+          category: z.string().describe("Cost category (e.g., 'Flights', 'Accommodation', 'Food')"),
+          amount: z.number().describe("Estimated amount for this category")
+        })
+      ).describe("Breakdown of the total cost into categories"),
+      itinerary: z.array(
+        z.object({
+          day: z.number().describe("The day number (e.g., 1, 2)"),
+          title: z.string().describe("A short title for the day (e.g., 'Arrival & City Tour')"),
+          activities: z.array(z.string()).describe("A list of activities for this day")
+        })
+      ).describe("The day-by-day itinerary"),
+      tips: z.array(z.string()).describe("A list of helpful travel tips, packing advice, or local customs")
+    }),
   },
 ];
 

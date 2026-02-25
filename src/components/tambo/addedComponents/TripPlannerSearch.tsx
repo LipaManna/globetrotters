@@ -4,6 +4,15 @@ import { useState } from 'react';
 import { useTamboThreadInput } from '@tambo-ai/react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { MapPin, Clock, CreditCard, Compass } from 'lucide-react';
 
 export function TripPlannerSearch() {
   const { setValue, submit } = useTamboThreadInput();
@@ -36,65 +45,76 @@ export function TripPlannerSearch() {
   };
 
   return (
-    <div className="banFormSec" style={{ marginBottom: '40px' }}>
-      <form onSubmit={handleSubmit}>
-        <div className="formFields">
-          <div className="row">
-            <div className="col-md-3">
-              <div className="form-group pb-2">
-                <Input
-                  type="text"
-                  placeholder="Where do you want to go?"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  style={{ borderRadius: '30px', height: '50px' }}
-                />
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="form-group pb-2">
-                <Input
-                  type="text"
-                  placeholder="Duration (e.g., 5 Days)"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  style={{ borderRadius: '30px', height: '50px' }}
-                />
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="form-group pb-2">
-                <Input
-                  type="text"
-                  placeholder="Budget (e.g., $2000)"
-                  value={budget}
-                  onChange={(e) => setBudget(e.target.value)}
-                  style={{ borderRadius: '30px', height: '50px' }}
-                />
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="form-group pb-2">
-                <Input
-                  type="text"
-                  placeholder="Interests (e.g., history, food)"
-                  value={interests}
-                  onChange={(e) => setInterests(e.target.value)}
-                  style={{ borderRadius: '30px', height: '50px' }}
-                />
-              </div>
+    <Card className="w-full max-w-sm my-2 overflow-hidden shadow-sm">
+      <CardHeader className="bg-muted/30 pb-4 border-b">
+        <CardTitle className="text-base">Plan Your Trip</CardTitle>
+        <CardDescription>
+          Let AI craft the perfect itinerary tailored to your preferences.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="destination">Destination</Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="destination"
+                placeholder="e.g., Paris, Japan"
+                className="pl-9"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+              />
             </div>
           </div>
-          <div className="formBtn" style={{ marginTop: '20px', textAlign: 'center' }}>
-            <Button 
-              type="submit" 
-              style={{ borderRadius: '30px', padding: '0 40px', height: '50px', background: '#ff7c30' }}
-            >
-              Plan My Trip with AI
-            </Button>
+
+          <div className="space-y-2">
+            <Label htmlFor="duration">Duration</Label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="duration"
+                placeholder="e.g., 5 Days, 1 Week"
+                className="pl-9"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="budget">Budget (Estimated)</Label>
+            <div className="relative">
+              <CreditCard className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="budget"
+                placeholder="e.g., $2000, 50,000 INR"
+                className="pl-9"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="interests">Interests & Preferences</Label>
+            <div className="relative">
+              <Compass className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="interests"
+                placeholder="e.g., History, Food, Beaches"
+                className="pl-9"
+                value={interests}
+                onChange={(e) => setInterests(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full mt-4">
+            Plan My Trip with AI
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
