@@ -198,11 +198,86 @@ input[type="submit"] {
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
-  line-height: 32px;
+}
+
+/* Mobile navigation and close button styling (raw template behaviour) */
+.header .navbar {
+  position: relative;
+}
+/* hide icon by default */
+.header .navbar .closebtn {
+  display: none;
+}
+@media (max-width: 991px) {
+  .header .navbar .closebtn {
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 0;
+    background: transparent;
+    width: 30px;
+    height: 30px;
+    border: 0;
+  }
+  .header .navbar .closebtn img {
+    width: 20px;
+  }
+  .header .navbar .navbar-toggler {
+    order: 1;
+    border-radius: 0;
+    border: 0 !important;
+    background: #00525B;
+    box-shadow: none;
+    padding: 1px 7px;
+  }
+  .header .navbar .navbar-toggler span {
+    filter: brightness(0) invert(1);
+    width: 22px;
+  }
+  .header .navbar .navbar-collapse {
+    position: fixed;
+    right: -100%;
+    z-index: 9;
+    transition: 0.3s all ease-in-out 0s;
+    width: 300px;
+    top: 0;
+    transform: inherit;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+  .header .navbar .navbar-collapse.show {
+    right: 0;
+  }
+  .header .navbar .navbar-collapse .navbar-nav {
+    margin: 0;
+    padding: 15px;
+    padding-top: 60px;
+    background: #fff;
+  }
+}
+
+body.menuOpen {
+  overflow: hidden;
+}
+body.menuOpen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2;
+}
+body.menuOpen .navbar-collapse {
+  right: 0 !important;
+}
+  /* line-height: 32px;
   border: 1px solid #00525B;
   transition: 0.3s all ease-in-out 0s;
   cursor: pointer;
-}
+} */
 
 .primaryBtn:hover,
 input[type="button"]:hover,

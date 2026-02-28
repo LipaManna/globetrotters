@@ -3,25 +3,35 @@
 
 import React from 'react';
 
-const CloseBtn = () => {
+interface CloseBtnProps {
+  onClose?: () => void;
+}
+
+const CloseBtn = ({ onClose }: CloseBtnProps) => {
   const handleClose = () => {
-    const bodyTag = document.querySelector<HTMLDivElement>('body');
-    if (bodyTag) {
-      bodyTag.classList.remove('menuOpen');
-    }
-    const navbarToggler = document.querySelector<HTMLDivElement>('.navbar-toggler');
-    if (navbarToggler) {
-      navbarToggler.classList.add('collapsed');
-    }
-    const navbarCollapse = document.querySelector<HTMLDivElement>('.navbar-collapse');
-    if (navbarCollapse) {
-      navbarCollapse.classList.remove('show');
+    console.log('CloseBtn clicked');
+    if (onClose) {
+      onClose();
+    } else {
+      // Fallback logic if onClose is not provided
+      const bodyTag = document.querySelector<HTMLDivElement>('body');
+      if (bodyTag) {
+        bodyTag.classList.remove('menuOpen');
+      }
+      const navbarToggler = document.querySelector<HTMLDivElement>('.navbar-toggler');
+      if (navbarToggler) {
+        navbarToggler.classList.add('collapsed');
+      }
+      const navbarCollapse = document.querySelector<HTMLDivElement>('.navbar-collapse');
+      if (navbarCollapse) {
+        navbarCollapse.classList.remove('show');
+      }
     }
   };
 
   return (
-    <button type="button" className="closebtn" onClick={handleClose}>
-      <img src="/closeicon.png" alt="" />
+    <button type="button" className="closebtn" onClick={handleClose} aria-label="Close menu">
+      <img src="/closeicon.png" alt="Close" />
     </button>
   );
 };
